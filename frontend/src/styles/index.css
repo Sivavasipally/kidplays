@@ -144,6 +144,7 @@ body::after {
    Header
    =========================================================================== */
 .app-header {
+  position: relative; /* anchors the mobile menu sheet */
   display: flex;
   align-items: center;
   gap: 12px 16px;
@@ -151,8 +152,7 @@ body::after {
   background: linear-gradient(110deg, var(--brand) 0%, var(--brand-2) 55%, #ff9a6e 110%);
   color: #fff;
   box-shadow: var(--shadow-soft);
-  z-index: 10;
-  flex-wrap: wrap; /* buttons drop to a second row instead of overflowing */
+  z-index: 20;
 }
 
 .brand { display: flex; align-items: center; gap: 11px; }
@@ -194,6 +194,50 @@ body::after {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+/* Quick actions (theme + Save + hamburger) — only used on small screens. */
+.header-quick {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.menu-toggle {
+  display: none; /* shown only on mobile/tablet */
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  position: relative;
+  box-shadow: var(--clay-hi), 0 4px 10px rgba(40, 25, 80, 0.2);
+  transition: transform 0.18s var(--spring);
+}
+.menu-toggle:active { transform: scale(0.92); }
+/* Three-line hamburger that morphs into an X when open */
+.menu-toggle .bars,
+.menu-toggle .bars::before,
+.menu-toggle .bars::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--brand);
+  transform: translateX(-50%);
+  transition: transform 0.25s var(--spring), opacity 0.2s var(--ease);
+}
+.menu-toggle .bars { top: 50%; margin-top: -1.5px; }
+.menu-toggle .bars::before { top: -7px; }
+.menu-toggle .bars::after { top: 7px; }
+.menu-toggle.open .bars { background: transparent; }
+.menu-toggle.open .bars::before { transform: translateX(-50%) translateY(7px) rotate(45deg); }
+.menu-toggle.open .bars::after { transform: translateX(-50%) translateY(-7px) rotate(-45deg); }
+
+.menu-scrim { display: none; }
+.save-quick { display: none; }
 
 /* Clay buttons */
 .hbtn {
@@ -1069,36 +1113,108 @@ body.resizing iframe, body.resizing .blockly-host { pointer-events: none; }
 /* ===========================================================================
    Responsive (tablets & small screens — kids often use iPads)
    =========================================================================== */
+/* ---- Tablet & below: stack the workspace vertically ---- */
 @media (max-width: 980px) {
   body { overflow-x: hidden; overflow-y: auto; }
   .app { height: auto; min-height: 100vh; }
   .workspace-layout { padding: 10px; }
-  .header-actions { justify-content: center; }
   .workspace-layout,
   .workspace-layout.side-left { flex-direction: column; }
-  .blocks-area { flex: 1 1 auto; height: 58vh; min-width: 0; }
+  .blocks-area { flex: 1 1 auto; height: 56vh; min-width: 0; }
   .dock-handle { display: none; }
   .stage-area { overflow: visible; min-width: 0; }
-  .project-name { flex-basis: 180px; }
-  .brand-sub { display: none; }
-}
-@media (max-width: 560px) {
-  .app-header { gap: 8px 10px; padding: 10px 12px; }
-  .brand-logo { font-size: 30px; }
-  .brand-name { font-size: 19px; }
-  .project-name { order: 3; flex-basis: 100%; max-width: none; }
-  .header-actions { gap: 6px; width: 100%; justify-content: center; }
-  .hbtn { padding: 9px 12px; font-size: 13px; }
-  .theme-toggle { width: 40px; height: 40px; }
-  .run-btn { font-size: 17px; padding: 12px; }
-  .help-cats { grid-template-columns: 1fr; }
-  /* dropdowns must never exceed the screen */
-  .dropdown-menu { max-width: calc(100vw - 24px); }
-}
 
-/* Background blobs must never create horizontal scroll on small screens */
-@media (max-width: 980px) {
+  /* Keep blobs from causing horizontal scroll */
   body::before, body::after { width: 80vw; height: 80vw; filter: blur(50px); }
   body::before { left: -20vw; }
   body::after { right: -20vw; }
+}
+
+/* ---- Collapsing toolbar: hamburger menu on mobile/tablet ---- */
+@media (max-width: 860px) {
+  .app-header { gap: 10px 12px; padding: 10px 14px; flex-wrap: nowrap; }
+  .brand-sub { display: none; }
+  .brand-logo { font-size: 30px; }
+  .brand-name { font-size: 19px; }
+  .project-name { flex: 1 1 90px; min-width: 70px; max-width: none; }
+
+  /* Show the compact quick bar + hamburger; hide the full inline Save. */
+  .header-quick { display: flex; }
+  .menu-toggle { display: inline-block; }
+  .save-quick { display: inline-flex; }
+  .save-full { display: none; }
+
+  /* The secondary actions become a drop-down sheet under the header. */
+  .header-actions {
+    position: absolute;
+    top: 100%;
+    right: 8px;
+    left: 8px;
+    margin: 8px 0 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--glass-brd);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-pop);
+    padding: 10px;
+    z-index: 40;
+    /* hidden by default; revealed when .open */
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.18s var(--ease), transform 0.2s var(--spring);
+  }
+  .header-actions.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .header-actions .hbtn,
+  .header-actions .dropdown > .hbtn {
+    width: 100%;
+    text-align: left;
+    font-size: 15px;
+    padding: 13px 16px; /* big tap targets */
+    background: var(--surface-2);
+    color: var(--ink);
+    box-shadow: none;
+  }
+  .header-actions .hbtn.help { color: var(--brand-2); }
+  .header-actions .dropdown { width: 100%; }
+  /* Dropdowns inside the sheet expand inline rather than floating. */
+  .header-actions .dropdown-menu {
+    position: static;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 4px 0 4px 10px;
+    min-width: 0;
+    animation: none;
+  }
+  .header-actions .dropdown-menu button { font-size: 14px; padding: 11px 12px; }
+
+  .menu-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: transparent;
+  }
+
+  .run-btn { font-size: 17px; padding: 13px; }
+  .help-cats { grid-template-columns: 1fr; }
+}
+
+/* ---- Phones: a touch more compact ---- */
+@media (max-width: 480px) {
+  .app-header { padding: 9px 11px; }
+  .brand-text { display: none; } /* logo only — saves room for controls */
+  .project-name { flex-basis: 70px; font-size: 14px; padding: 9px 12px; }
+  .theme-toggle { width: 42px; height: 42px; font-size: 18px; }
+  .save-quick { padding: 9px 13px; font-size: 14px; }
+  .menu-toggle { width: 42px; height: 42px; }
+  .run-bar { gap: 8px; }
 }

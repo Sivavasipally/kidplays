@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStore } from "../store.js";
 import { api } from "../api.js";
 import { EXAMPLES } from "../examples.js";
@@ -9,7 +9,6 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
   const { theme, toggle } = useTheme();
   const layout = useStore((s) => s.layout);
   const setLayout = useStore((s) => s.setLayout);
-  const [showLayout, setShowLayout] = useState(false);
   const projectName = useStore((s) => s.projectName);
   const setProjectName = useStore((s) => s.setProjectName);
   const projectId = useStore((s) => s.projectId);
@@ -18,8 +17,30 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
   const loadProject = useStore((s) => s.loadProject);
   const newProject = useStore((s) => s.newProject);
   const showToast = useStore((s) => s.showToast);
+
   const [saving, setSaving] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
+  const [showLayout, setShowLayout] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // mobile hamburger sheet
+
+  // Close the mobile menu when the viewport grows to desktop, and on Escape.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 861px)");
+    const onChange = (e) => e.matches && setMenuOpen(false);
+    mq.addEventListener?.("change", onChange);
+    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      mq.removeEventListener?.("change", onChange);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  const closeMenus = () => {
+    setMenuOpen(false);
+    setShowExamples(false);
+    setShowLayout(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -32,7 +53,6 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
       showToast("Saved! 🎉", "success");
       celebrate();
     } catch (e) {
-      // Projects are stored in the browser; this usually means storage is full.
       console.error("Save failed", e);
       showToast("Could not save — your browser storage may be full 😢", "error");
     } finally {
@@ -41,6 +61,7 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
   };
 
   const handleNew = () => {
+    closeMenus();
     if (confirm("Start a brand new project? Unsaved work will be lost.")) {
       newProject();
       showToast("New project! ✨", "info");
@@ -49,8 +70,23 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
 
   const handleExample = (ex) => {
     loadProject({ name: ex.name, data: ex.data });
-    setShowExamples(false);
+    closeMenus();
     showToast(`Loaded "${ex.name}" 🚀`, "info");
+  };
+
+  const handleOpen = () => {
+    closeMenus();
+    onOpenProjects();
+  };
+
+  const handleHelp = () => {
+    closeMenus();
+    onOpenHelp();
+  };
+
+  const setLayoutAndClose = (patch) => {
+    setLayout(patch);
+    closeMenus();
   };
 
   return (
@@ -68,9 +104,11 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
         value={projectName}
         onChange={(e) => setProjectName(e.target.value)}
         spellCheck={false}
+        aria-label="Project name"
       />
 
-      <div className="header-actions">
+      {/* Always-visible quick actions */}
+      <div className="header-quick">
         <button
           className="theme-toggle"
           onClick={toggle}
@@ -79,6 +117,21 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
         >
           {theme === "day" ? "🌙" : "☀️"}
         </button>
+        <button className="hbtn primary save-quick" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving…" : "💾 Save"}
+        </button>
+        <button
+          className={`menu-toggle ${menuOpen ? "open" : ""}`}
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+        >
+          <span className="bars" />
+        </button>
+      </div>
+
+      {/* Secondary actions — inline on desktop, a tap-friendly sheet on mobile */}
+      <div className={`header-actions ${menuOpen ? "open" : ""}`}>
         <div className="dropdown">
           <button className="hbtn" onClick={() => setShowExamples((v) => !v)}>
             🎁 Examples ▾
@@ -93,8 +146,9 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
             </div>
           )}
         </div>
-        <button className="hbtn" onClick={onOpenProjects}>📂 Open</button>
-        <button className="hbtn primary" onClick={handleSave} disabled={saving}>
+
+        <button className="hbtn" onClick={handleOpen}>📂 Open</button>
+        <button className="hbtn save-full primary" onClick={handleSave} disabled={saving}>
           {saving ? "Saving…" : "💾 Save"}
         </button>
         <button className="hbtn" onClick={handleNew}>📄 New</button>
@@ -105,23 +159,26 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
           </button>
           {showLayout && (
             <div className="dropdown-menu" onMouseLeave={() => setShowLayout(false)}>
-              <button onClick={() => { setLayout({ stageSide: layout.stageSide === "right" ? "left" : "right" }); setShowLayout(false); }}>
+              <button onClick={() => setLayoutAndClose({ stageSide: layout.stageSide === "right" ? "left" : "right" })}>
                 ⇄ Swap sides
               </button>
-              <button onClick={() => { setLayout({ ratio: 0.62 }); setShowLayout(false); }}>
+              <button onClick={() => setLayoutAndClose({ ratio: 0.62 })}>
                 ↔ Reset panel size
               </button>
-              <button onClick={() => { setLayout({ playMode: true }); setShowLayout(false); }}>
+              <button onClick={() => setLayoutAndClose({ playMode: true })}>
                 ⛶ Big Play mode
               </button>
             </div>
           )}
         </div>
 
-        <button className="hbtn help" onClick={onOpenHelp} title="How to use KidPlays">
+        <button className="hbtn help" onClick={handleHelp} title="How to use KidPlays">
           ❓ Help
         </button>
       </div>
+
+      {/* Tap-away scrim behind the mobile menu */}
+      {menuOpen && <div className="menu-scrim" onClick={closeMenus} />}
     </header>
   );
 }
