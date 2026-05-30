@@ -1,19 +1,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// KidPlays Studio dev server. Proxies API calls to the Flask backend so the
-// whole thing runs locally with two simple commands.
+// KidPlays Studio is a fully static, server-free app. It saves projects in the
+// browser, so it can be hosted anywhere — including GitHub Pages.
+//
+// `base: "./"` makes all asset URLs relative, so the build works no matter what
+// sub-path it's served from (e.g. https://USER.github.io/REPO/). No need to
+// hard-code the repository name.
 export default defineConfig({
   plugins: [react()],
+  base: "./",
   server: {
     port: 3000,
     open: true,
-    proxy: {
-      "/api": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-      },
-    },
   },
   build: {
     outDir: "dist",

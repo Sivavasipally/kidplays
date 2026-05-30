@@ -2,11 +2,13 @@
 
 A next-generation, **kid-friendly block-coding playground** — think Scratch, reimagined
 with a modern stack and a delightful, colorful UX. Kids drag and snap blocks together to
-make sprites move, talk, play sounds, and react to the keyboard and mouse. Everything runs
-**100% locally on Windows** with a standalone SQLite database — no internet or accounts
-required.
+make sprites move, talk, play sounds, and react to the keyboard and mouse.
 
-![stack](https://img.shields.io/badge/React-18-4C97FF) ![stack](https://img.shields.io/badge/Blockly-11-FFAB19) ![stack](https://img.shields.io/badge/Flask-3-59C059) ![stack](https://img.shields.io/badge/SQLite-local-9966FF)
+**100% static & server-free** — projects are saved right in the browser, so the whole app
+can be hosted for free on **GitHub Pages** (or any static host), or run locally with no
+internet or accounts required.
+
+![stack](https://img.shields.io/badge/React-18-4C97FF) ![stack](https://img.shields.io/badge/Blockly-11-FFAB19) ![stack](https://img.shields.io/badge/Vite-5-646CFF) ![stack](https://img.shields.io/badge/static-no%20backend-3ddc84)
 
 ---
 
@@ -25,7 +27,8 @@ required.
   controls** for games.
 - **🎬 Make a Movie** — record the stage to a **GIF** or **video (MP4/WebM)** right
   in the browser (no uploads) to save and share creations.
-- **Save / load projects** to a local SQLite database, plus an offline localStorage fallback.
+- **Save / load projects** right in the browser (localStorage) — no server, accounts, or
+  internet needed. Your projects stay on your computer.
 - **Ready-made example games**: Dancing Cat, Star Catcher, Arrow Driver, Magic Show.
 - **Backdrops**, speech & thought bubbles, variables, and more.
 
@@ -40,33 +43,42 @@ required.
 
 ---
 
-## 🚀 Quick Start (Windows)
+## 🚀 Run it locally
 
-### Easiest: one click
-Double-click **`start.bat`**. It sets up the Python virtual environment, installs
-dependencies, and launches both servers. Then open **http://localhost:3000**.
+The app is a single static frontend — **no backend required**.
 
-### Manual (two terminals)
-
-**Backend** (Flask + SQLite):
-```bat
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
-Backend runs at http://localhost:5000
-
-**Frontend** (React + Vite):
 ```bat
 cd frontend
 npm install
 npm run dev
 ```
-Frontend runs at http://localhost:3000 (API calls are proxied to the backend).
+Then open **http://localhost:3000**. Projects are saved in your browser.
 
-> No backend? No problem — the editor still runs and falls back to saving in the browser.
+To make a production build (static files in `frontend/dist`):
+```bat
+cd frontend
+npm run build
+npm run preview   REM optional: preview the built site
+```
+
+> The old `backend/` folder (Flask + SQLite) is **optional and no longer needed** — it's
+> kept only for anyone who wants a shared, multi-device server. The app works fully without it.
+
+---
+
+## 🌐 Deploy free on GitHub Pages
+
+Because there's no backend, you can host KidPlays Studio for free as a static site.
+
+1. Push this repo to GitHub.
+2. In the repo, go to **Settings → Pages** and set **Source: GitHub Actions**.
+3. Push to `main`. The included workflow (`.github/workflows/deploy.yml`) builds the
+   frontend and publishes it automatically.
+4. Your app goes live at `https://<your-username>.github.io/<repo-name>/`.
+
+The build uses a relative base path (`base: "./"` in `vite.config.js`), so it works under
+any repository sub-path with no extra configuration. You can also drag `frontend/dist` onto
+**Netlify**, **Cloudflare Pages**, or any static host.
 
 ---
 
@@ -81,7 +93,7 @@ kidplays/
 │   └── src/
 │       ├── App.jsx          Layout + run/stop controls
 │       ├── store.js         Zustand global state (project, sprites, runtime)
-│       ├── api.js           Backend client
+│       ├── api.js           Project storage (browser localStorage — no server)
 │       ├── examples.js      Ready-made starter projects
 │       ├── blocks/
 │       │   ├── definitions.js   Custom Blockly block definitions

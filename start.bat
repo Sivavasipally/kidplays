@@ -1,7 +1,7 @@
 @echo off
 REM ===================================================================
 REM  KidPlays Studio - one-click local launcher for Windows
-REM  Starts the Flask backend and the Vite frontend in two windows.
+REM  Fully static, no backend. Projects are saved in your browser.
 REM ===================================================================
 setlocal
 
@@ -11,31 +11,21 @@ echo    KidPlays Studio - starting up...
 echo  ====================================================
 echo.
 
-REM ---- Backend ----
-echo [1/2] Preparing backend (Flask + SQLite)...
-cd /d "%~dp0backend"
-if not exist "venv" (
-    echo       Creating Python virtual environment...
-    python -m venv venv
-)
-call venv\Scripts\activate
-echo       Installing backend dependencies...
-pip install -q -r requirements.txt
-start "KidPlays Backend" cmd /k "call venv\Scripts\activate && python app.py"
-
-REM ---- Frontend ----
 cd /d "%~dp0frontend"
-echo [2/2] Preparing frontend (React + Vite)...
-if not exist "node_modules" (
-    echo       Installing frontend dependencies (first run, please wait)...
-    call npm install
-)
-start "KidPlays Frontend" cmd /k "npm run dev"
 
+if not exist "node_modules" goto install
+goto run
+
+:install
+echo  Installing dependencies. The first run may take a minute...
+call npm install
 echo.
+
+:run
 echo  ====================================================
-echo    KidPlays Studio is launching!
-echo    Open your browser at:  http://localhost:3000
+echo    Opening KidPlays Studio at http://localhost:3000
 echo  ====================================================
 echo.
+call npm run dev
+
 endlocal

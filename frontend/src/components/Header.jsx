@@ -32,16 +32,9 @@ export default function Header({ onOpenProjects, onOpenHelp }) {
       showToast("Saved! 🎉", "success");
       celebrate();
     } catch (e) {
-      // Offline fallback: save to localStorage so kids never lose work.
-      try {
-        localStorage.setItem(
-          "kidplays:lastProject",
-          JSON.stringify({ name: projectName, data: serializeProject() })
-        );
-        showToast("Saved on this computer 💾", "success");
-      } catch {
-        showToast("Could not save 😢", "error");
-      }
+      // Projects are stored in the browser; this usually means storage is full.
+      console.error("Save failed", e);
+      showToast("Could not save — your browser storage may be full 😢", "error");
     } finally {
       setSaving(false);
     }

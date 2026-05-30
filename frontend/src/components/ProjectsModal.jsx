@@ -17,7 +17,7 @@ export default function ProjectsModal({ onClose }) {
         setProjects(list);
         setError(null);
       })
-      .catch(() => setError("Couldn't reach the server. Is the backend running?"))
+      .catch(() => setError("Couldn't load your saved projects on this computer."))
       .finally(() => setLoading(false));
   };
 

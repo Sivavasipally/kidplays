@@ -17,9 +17,13 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
-    "@esbuild/win32-x64": "^0.21.5",
-    "@rollup/rollup-win32-x64-msvc": "^4.24.0",
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^5.4.11"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.21.5",
+    "@esbuild/linux-x64": "^0.21.5",
+    "@rollup/rollup-win32-x64-msvc": "^4.24.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.24.0"
   }
 }
