@@ -23,9 +23,20 @@ required.
   Audio API — works fully offline.
 - **Drag sprites** directly on the stage; **click sprites** to trigger scripts; **keyboard
   controls** for games.
+- **🎬 Make a Movie** — record the stage to a **GIF** or **video (MP4/WebM)** right
+  in the browser (no uploads) to save and share creations.
 - **Save / load projects** to a local SQLite database, plus an offline localStorage fallback.
-- **Ready-made example games**: Dancing Cat, Star Catcher, Arrow Driver.
+- **Ready-made example games**: Dancing Cat, Star Catcher, Arrow Driver, Magic Show.
 - **Backdrops**, speech & thought bubbles, variables, and more.
+
+### 🎨 Next-gen "Playful Clay" UX
+- Tactile **claymorphism** controls with spring-physics hover/press, an animated
+  **aurora** backdrop, and glassy panels.
+- 🌙 **Day / Night theme toggle** (remembers your choice, re-skins the whole app
+  *and* the Blockly editor).
+- 🎉 **Confetti celebrations** when you press Go! and when you Save.
+- Built for kids and tablets: large touch targets, bouncy micro-interactions,
+  visible focus rings, and full **reduced-motion** support for accessibility.
 
 ---
 

@@ -1,7 +1,20 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useStore, COSTUMES, BACKDROPS } from "../store.js";
 import { Runtime, STAGE_W, STAGE_H } from "../vm/interpreter.js";
 import { AudioEngine } from "../vm/audio.js";
+import { paintBackdrop } from "../vm/backdrops.js";
+import {
+  startVideoRecording,
+  encodeGif,
+  downloadBlob,
+  canRecordVideo,
+} from "../vm/recorder.js";
+
+// GIF capture settings (downscaled & capped so files stay small and friendly).
+const GIF_W = 320;
+const GIF_H = 240;
+const GIF_FPS = 12;
+const GIF_MAX_SECONDS = 12;
 
 const emojiFor = (id) => COSTUMES.find((c) => c.id === id)?.emoji || "🐱";
 const backdropCss = (id) => BACKDROPS.find((b) => b.id === id)?.css || "#fff";
@@ -27,10 +40,19 @@ export default function Stage() {
   const liveRef = useRef(null); // latest runtime snapshot while running
   const draggingRef = useRef(null);
 
+  // recording
+  const [rec, setRec] = useState({ state: "idle", format: null, elapsed: 0, progress: 0 });
+  const [recMenu, setRecMenu] = useState(false);
+  const videoRecRef = useRef(null);
+  const gifFramesRef = useRef([]);
+  const gifCanvasRef = useRef(null);
+  const recTimersRef = useRef({ tick: null, capture: null });
+
   const running = useStore((s) => s.running);
   const setRunning = useStore((s) => s.setRunning);
   const backdrop = useStore((s) => s.backdrop);
   const updateSprite = useStore((s) => s.updateSprite);
+  const showToast = useStore((s) => s.showToast);
 
   if (!audioRef.current) audioRef.current = new AudioEngine();
 
@@ -39,9 +61,11 @@ export default function Stage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, STAGE_W, STAGE_H);
 
     const state = useStore.getState();
+    const bId = liveRef.current?.backdrop || state.backdrop;
+    paintBackdrop(ctx, bId, STAGE_W, STAGE_H);
+
     const sprites = liveRef.current
       ? liveRef.current.sprites
       : state.sprites.map((s) => ({ ...s, say: "" }));
@@ -183,6 +207,107 @@ export default function Stage() {
     draggingRef.current = null;
   };
 
+  // ---- recording --------------------------------------------------------
+  const clearRecTimers = () => {
+    if (recTimersRef.current.tick) clearInterval(recTimersRef.current.tick);
+    if (recTimersRef.current.capture) clearInterval(recTimersRef.current.capture);
+    recTimersRef.current = { tick: null, capture: null };
+  };
+  const projectFileName = () =>
+    (useStore.getState().projectName || "my-animation").replace(/[^\w-]+/g, "_") || "my-animation";
+
+  const finishGif = useCallback(async () => {
+    clearRecTimers();
+    const frames = gifFramesRef.current;
+    if (!frames.length) {
+      setRec({ state: "idle", format: null, elapsed: 0, progress: 0 });
+      return;
+    }
+    setRec((r) => ({ ...r, state: "encoding", progress: 0 }));
+    try {
+      const blob = await encodeGif(frames, GIF_W, GIF_H, Math.round(1000 / GIF_FPS), (p) =>
+        setRec((r) => ({ ...r, progress: p }))
+      );
+      downloadBlob(blob, `${projectFileName()}.gif`);
+      showToast("GIF saved! 🎞️", "success");
+    } catch (e) {
+      console.error("GIF encode failed", e);
+      showToast("Could not make the GIF 😢", "error");
+    }
+    gifFramesRef.current = [];
+    setRec({ state: "idle", format: null, elapsed: 0, progress: 0 });
+  }, [showToast]);
+
+  const finishVideo = useCallback(async () => {
+    clearRecTimers();
+    const ctrl = videoRecRef.current;
+    videoRecRef.current = null;
+    if (!ctrl) {
+      setRec({ state: "idle", format: null, elapsed: 0, progress: 0 });
+      return;
+    }
+    try {
+      const { blob, ext } = await ctrl.stop();
+      downloadBlob(blob, `${projectFileName()}.${ext}`);
+      showToast("Video saved! 🎬", "success");
+    } catch (e) {
+      console.error("Video save failed", e);
+      showToast("Could not make the video 😢", "error");
+    }
+    setRec({ state: "idle", format: null, elapsed: 0, progress: 0 });
+  }, [showToast]);
+
+  const stopRecording = () => {
+    if (rec.format === "gif") finishGif();
+    else if (rec.format === "video") finishVideo();
+  };
+
+  const startRecording = (format) => {
+    setRecMenu(false);
+    if (rec.state !== "idle") return;
+    audioRef.current.ensure();
+    setRunning(true); // make sure the animation is playing while we record
+
+    if (format === "video") {
+      if (!canRecordVideo(canvasRef.current)) {
+        showToast("Video isn't supported in this browser — try GIF!", "error");
+        return;
+      }
+      videoRecRef.current = startVideoRecording(canvasRef.current, 30);
+    } else {
+      gifFramesRef.current = [];
+      if (!gifCanvasRef.current) {
+        const c = document.createElement("canvas");
+        c.width = GIF_W;
+        c.height = GIF_H;
+        gifCanvasRef.current = c;
+      }
+      const gctx = gifCanvasRef.current.getContext("2d", { willReadFrequently: true });
+      recTimersRef.current.capture = setInterval(() => {
+        if (!canvasRef.current) return;
+        gctx.drawImage(canvasRef.current, 0, 0, GIF_W, GIF_H);
+        gifFramesRef.current.push(gctx.getImageData(0, 0, GIF_W, GIF_H).data);
+      }, Math.round(1000 / GIF_FPS));
+    }
+
+    const startedAt = Date.now();
+    setRec({ state: "recording", format, elapsed: 0, progress: 0 });
+    recTimersRef.current.tick = setInterval(() => {
+      const elapsed = (Date.now() - startedAt) / 1000;
+      setRec((r) => (r.state === "recording" ? { ...r, elapsed } : r));
+      if (format === "gif" && elapsed >= GIF_MAX_SECONDS) finishGif();
+    }, 200);
+  };
+
+  // Tidy up timers if the stage unmounts mid-recording.
+  useEffect(() => () => clearRecTimers(), []);
+
+  const fmtTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${String(sec).padStart(2, "0")}`;
+  };
+
   return (
     <div className="stage-wrap">
       <div className="stage-frame" style={{ background: backdropCss(backdrop) }}>
@@ -196,12 +321,59 @@ export default function Stage() {
           onPointerUp={onPointerUp}
           style={{ cursor: running ? "pointer" : "grab" }}
         />
+        {rec.state === "recording" && (
+          <div className="rec-badge">
+            <span className="rec-dot" /> REC {fmtTime(rec.elapsed)}
+          </div>
+        )}
+        {rec.state === "encoding" && (
+          <div className="rec-encoding">
+            <div className="rec-spinner">🎞️</div>
+            <div>Making your GIF… {Math.round(rec.progress * 100)}%</div>
+            <div className="rec-progress">
+              <span style={{ width: `${Math.round(rec.progress * 100)}%` }} />
+            </div>
+          </div>
+        )}
       </div>
+
       <p className="stage-hint">
-        {running
+        {rec.state === "recording"
+          ? `🎥 Recording your ${rec.format === "gif" ? "GIF" : "video"}…`
+          : running
           ? "🎮 Playing! Use your keyboard & click sprites."
           : "💡 Tip: drag a sprite to move it. Press Go! to play."}
       </p>
+
+      <div className="record-bar">
+        {rec.state === "idle" && (
+          <div className="dropdown">
+            <button className="movie-btn" onClick={() => setRecMenu((v) => !v)}>
+              🎬 Make a Movie ▾
+            </button>
+            {recMenu && (
+              <div className="dropdown-menu up" onMouseLeave={() => setRecMenu(false)}>
+                <button onClick={() => startRecording("gif")}>
+                  🎞️ Record GIF <small>· max {GIF_MAX_SECONDS}s</small>
+                </button>
+                <button onClick={() => startRecording("video")}>
+                  🎬 Record Video <small>· longer clips</small>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        {rec.state === "recording" && (
+          <button className="movie-btn rec" onClick={stopRecording}>
+            ⏹ Stop &amp; Save {rec.format === "gif" ? "GIF" : "Video"}
+          </button>
+        )}
+        {rec.state === "encoding" && (
+          <button className="movie-btn" disabled>
+            ⏳ Saving GIF… {Math.round(rec.progress * 100)}%
+          </button>
+        )}
+      </div>
     </div>
   );
 }

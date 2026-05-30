@@ -25,8 +25,9 @@ export const toolbox = {
   contents: [
     {
       kind: "category",
-      name: "Events",
+      name: "⚡ Events",
       colour: COLORS.events,
+      cssconfig: { container: "kp-cat kp-events" },
       contents: [
         block("event_when_flag_clicked"),
         block("event_when_key_pressed"),
@@ -37,8 +38,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Motion",
+      name: "🏃 Motion",
       colour: COLORS.motion,
+      cssconfig: { container: "kp-cat kp-motion" },
       contents: [
         block("motion_move", { STEPS: N(10) }),
         block("motion_turn_right", { DEG: N(15) }),
@@ -56,8 +58,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Looks",
+      name: "🎨 Looks",
       colour: COLORS.looks,
+      cssconfig: { container: "kp-cat kp-looks" },
       contents: [
         block("looks_say", { TEXT: T("Hi there!") }),
         block("looks_say_for", { TEXT: T("Hello!"), SECS: N(2) }),
@@ -72,8 +75,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Sound",
+      name: "🔊 Sound",
       colour: COLORS.sound,
+      cssconfig: { container: "kp-cat kp-sound" },
       contents: [
         block("sound_play"),
         block("sound_play_note", { SECS: N(1) }),
@@ -81,8 +85,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Control",
+      name: "🔁 Control",
       colour: COLORS.control,
+      cssconfig: { container: "kp-cat kp-control" },
       contents: [
         block("control_wait", { SECS: N(1) }),
         block("control_repeat", { TIMES: N(10) }),
@@ -96,8 +101,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Sensing",
+      name: "👀 Sensing",
       colour: COLORS.sensing,
+      cssconfig: { container: "kp-cat kp-sensing" },
       contents: [
         block("sensing_touching_edge"),
         block("sensing_key_pressed"),
@@ -108,8 +114,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Operators",
+      name: "🔢 Operators",
       colour: COLORS.operators,
+      cssconfig: { container: "kp-cat kp-operators" },
       contents: [
         block("operator_arithmetic", { A: N(5), B: N(3) }),
         block("operator_random", { FROM: N(1), TO: N(10) }),
@@ -124,8 +131,9 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "Variables",
+      name: "📦 Variables",
       colour: COLORS.variables,
+      cssconfig: { container: "kp-cat kp-variables" },
       custom: "VARIABLE",
     },
   ],

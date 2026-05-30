@@ -66,8 +66,17 @@ export default function BlocklyWorkspace() {
     const onResize = () => Blockly.svgResize(ws);
     window.addEventListener("resize", onResize);
 
+    // Re-fit Blockly whenever its container changes size (split drag, Big Play,
+    // panel swaps) — a window resize event isn't enough on its own.
+    let ro;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => Blockly.svgResize(ws));
+      ro.observe(divRef.current);
+    }
+
     return () => {
       window.removeEventListener("resize", onResize);
+      if (ro) ro.disconnect();
       ws.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

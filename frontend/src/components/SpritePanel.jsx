@@ -1,6 +1,29 @@
 import React from "react";
 import { useStore, COSTUMES, BACKDROPS } from "../store.js";
 
+// A panel card whose body folds away when its title is clicked. Open/closed
+// state is remembered in the layout store, so kids can tidy their workspace.
+function CollapsibleCard({ panelKey, title, extra, children }) {
+  const open = useStore((s) => s.layout.panels[panelKey]);
+  const togglePanel = useStore((s) => s.togglePanel);
+  return (
+    <div className={`panel-card ${open ? "" : "collapsed"}`}>
+      <div className="panel-title-row">
+        <button
+          className="panel-title as-toggle"
+          onClick={() => togglePanel(panelKey)}
+          aria-expanded={open}
+        >
+          <span className={`fold-chevron ${open ? "open" : ""}`}>▸</span>
+          {title}
+        </button>
+        {extra}
+      </div>
+      {open && <div className="panel-content">{children}</div>}
+    </div>
+  );
+}
+
 export default function SpritePanel() {
   const sprites = useStore((s) => s.sprites);
   const selectedId = useStore((s) => s.selectedSpriteId);
@@ -12,14 +35,12 @@ export default function SpritePanel() {
   const setBackdrop = useStore((s) => s.setBackdrop);
 
   const selected = sprites.find((s) => s.id === selectedId) || sprites[0];
-
   const emoji = (id) => COSTUMES.find((c) => c.id === id)?.emoji || "🐱";
 
   return (
     <div className="sprite-panel">
       {/* Properties of the selected sprite */}
-      <div className="panel-card">
-        <div className="panel-title">✨ {selected.name}</div>
+      <CollapsibleCard panelKey="props" title={`✨ ${selected.name}`}>
         <div className="prop-grid">
           <label>Name
             <input
@@ -82,14 +103,18 @@ export default function SpritePanel() {
             </button>
           ))}
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Sprite list */}
-      <div className="panel-card">
-        <div className="panel-title-row">
-          <span className="panel-title">🎭 Sprites</span>
-          <button className="add-btn" onClick={addSprite}>＋ Add</button>
-        </div>
+      <CollapsibleCard
+        panelKey="sprites"
+        title="🎭 Sprites"
+        extra={
+          <button className="add-btn" onClick={addSprite}>
+            ＋ Add
+          </button>
+        }
+      >
         <div className="sprite-grid">
           {sprites.map((s) => (
             <div
@@ -114,11 +139,10 @@ export default function SpritePanel() {
             </div>
           ))}
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Backdrop picker */}
-      <div className="panel-card">
-        <div className="panel-title">🌈 Backdrop</div>
+      <CollapsibleCard panelKey="backdrop" title="🌈 Backdrop">
         <div className="backdrop-grid">
           {BACKDROPS.map((b) => (
             <button
@@ -130,7 +154,7 @@ export default function SpritePanel() {
             />
           ))}
         </div>
-      </div>
+      </CollapsibleCard>
     </div>
   );
 }

@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import { useStore } from "../store.js";
 import { api } from "../api.js";
 import { EXAMPLES } from "../examples.js";
+import { useTheme } from "../theme.js";
+import { celebrate } from "../confetti.js";
 
-export default function Header({ onOpenProjects }) {
+export default function Header({ onOpenProjects, onOpenHelp }) {
+  const { theme, toggle } = useTheme();
+  const layout = useStore((s) => s.layout);
+  const setLayout = useStore((s) => s.setLayout);
+  const [showLayout, setShowLayout] = useState(false);
   const projectName = useStore((s) => s.projectName);
   const setProjectName = useStore((s) => s.setProjectName);
   const projectId = useStore((s) => s.projectId);
@@ -24,6 +30,7 @@ export default function Header({ onOpenProjects }) {
       else result = await api.createProject(payload);
       setProjectId(result.id);
       showToast("Saved! 🎉", "success");
+      celebrate();
     } catch (e) {
       // Offline fallback: save to localStorage so kids never lose work.
       try {
@@ -71,6 +78,14 @@ export default function Header({ onOpenProjects }) {
       />
 
       <div className="header-actions">
+        <button
+          className="theme-toggle"
+          onClick={toggle}
+          title={theme === "day" ? "Switch to Night mode" : "Switch to Day mode"}
+          aria-label="Toggle day or night theme"
+        >
+          {theme === "day" ? "🌙" : "☀️"}
+        </button>
         <div className="dropdown">
           <button className="hbtn" onClick={() => setShowExamples((v) => !v)}>
             🎁 Examples ▾
@@ -90,6 +105,29 @@ export default function Header({ onOpenProjects }) {
           {saving ? "Saving…" : "💾 Save"}
         </button>
         <button className="hbtn" onClick={handleNew}>📄 New</button>
+
+        <div className="dropdown">
+          <button className="hbtn" onClick={() => setShowLayout((v) => !v)}>
+            🪟 Layout ▾
+          </button>
+          {showLayout && (
+            <div className="dropdown-menu" onMouseLeave={() => setShowLayout(false)}>
+              <button onClick={() => { setLayout({ stageSide: layout.stageSide === "right" ? "left" : "right" }); setShowLayout(false); }}>
+                ⇄ Swap sides
+              </button>
+              <button onClick={() => { setLayout({ ratio: 0.62 }); setShowLayout(false); }}>
+                ↔ Reset panel size
+              </button>
+              <button onClick={() => { setLayout({ playMode: true }); setShowLayout(false); }}>
+                ⛶ Big Play mode
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button className="hbtn help" onClick={onOpenHelp} title="How to use KidPlays">
+          ❓ Help
+        </button>
       </div>
     </header>
   );

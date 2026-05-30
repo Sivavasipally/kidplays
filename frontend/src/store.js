@@ -50,7 +50,52 @@ function makeSprite(partial = {}) {
 
 const firstSprite = makeSprite({ name: "Cat", costume: "cat" });
 
+// ---- Flexible layout (resizable / dockable) state, persisted locally -------
+const LAYOUT_KEY = "kidplays:layout";
+const DEFAULT_LAYOUT = {
+  ratio: 0.62, // fraction of width given to the blocks area
+  stageSide: "right", // "right" | "left" — dock the stage on either side
+  playMode: false, // full-screen stage for playing
+  panels: { props: true, sprites: true, backdrop: true }, // collapsible cards
+};
+function loadLayout() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY));
+    if (saved && typeof saved === "object") {
+      return { ...DEFAULT_LAYOUT, ...saved, panels: { ...DEFAULT_LAYOUT.panels, ...saved.panels } };
+    }
+  } catch {
+    /* ignore */
+  }
+  return { ...DEFAULT_LAYOUT };
+}
+function saveLayout(layout) {
+  try {
+    // playMode is intentionally not persisted — always start in editing mode.
+    const { playMode, ...rest } = layout;
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify(rest));
+  } catch {
+    /* ignore */
+  }
+}
+
 export const useStore = create((set, get) => ({
+  // ----- flexible layout -----
+  layout: loadLayout(),
+  setLayout: (patch) =>
+    set((s) => {
+      const layout = { ...s.layout, ...patch };
+      saveLayout(layout);
+      return { layout };
+    }),
+  togglePanel: (key) =>
+    set((s) => {
+      const panels = { ...s.layout.panels, [key]: !s.layout.panels[key] };
+      const layout = { ...s.layout, panels };
+      saveLayout(layout);
+      return { layout };
+    }),
+
   // ----- project meta -----
   projectId: null,
   projectName: "My First Game",
