@@ -1,0 +1,180 @@
+{
+  "name": "Star Catcher",
+  "data": {
+    "projectName": "Star Catcher",
+    "backdrop": "space",
+    "sprites": [
+      {
+        "id": "s-star",
+        "name": "Star",
+        "costume": "star",
+        "x": 0,
+        "y": 0,
+        "direction": 90,
+        "size": 90,
+        "visible": true,
+        "workspace": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "event_when_flag_clicked",
+                "x": 40,
+                "y": 40,
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "fields": {
+                      "VAR": {
+                        "id": "v-score"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "control_forever",
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "motion_goto_xy",
+                              "inputs": {
+                                "X": {
+                                  "block": {
+                                    "type": "operator_random",
+                                    "inputs": {
+                                      "FROM": {
+                                        "shadow": {
+                                          "type": "math_number_kid",
+                                          "fields": {
+                                            "NUM": -200
+                                          }
+                                        }
+                                      },
+                                      "TO": {
+                                        "shadow": {
+                                          "type": "math_number_kid",
+                                          "fields": {
+                                            "NUM": 200
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "Y": {
+                                  "block": {
+                                    "type": "operator_random",
+                                    "inputs": {
+                                      "FROM": {
+                                        "shadow": {
+                                          "type": "math_number_kid",
+                                          "fields": {
+                                            "NUM": -140
+                                          }
+                                        }
+                                      },
+                                      "TO": {
+                                        "shadow": {
+                                          "type": "math_number_kid",
+                                          "fields": {
+                                            "NUM": 140
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "control_wait",
+                                  "inputs": {
+                                    "SECS": {
+                                      "shadow": {
+                                        "type": "math_number_kid",
+                                        "fields": {
+                                          "NUM": 0.9
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "event_when_sprite_clicked",
+                "x": 40,
+                "y": 320,
+                "next": {
+                  "block": {
+                    "type": "math_change",
+                    "fields": {
+                      "VAR": {
+                        "id": "v-score"
+                      }
+                    },
+                    "inputs": {
+                      "DELTA": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "sound_play",
+                        "fields": {
+                          "SOUND": "coin"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "looks_say",
+                            "inputs": {
+                              "TEXT": {
+                                "shadow": {
+                                  "type": "text_kid",
+                                  "fields": {
+                                    "TEXT": "Yay! +1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variables": [
+            {
+              "name": "score",
+              "id": "v-score"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

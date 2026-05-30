@@ -166,4 +166,58 @@ const arrowDrive = {
   },
 };
 
-export const EXAMPLES = [dancingCat, starCatcher, arrowDrive];
+// --- Example 4: Magic Show (two sprites talking with broadcasts) -------------
+const magicShow = {
+  name: "Magic Show",
+  icon: "🦄",
+  data: {
+    projectName: "Magic Show",
+    backdrop: "space",
+    sprites: [
+      {
+        id: "s-wizard",
+        name: "Unicorn",
+        costume: "unicorn",
+        x: -110, y: -20, direction: 90, size: 110, visible: true,
+        workspace: ws([
+          script(40, 40, b("event_when_sprite_clicked"), [
+            b("looks_say", { inputs: { TEXT: txt("Abracadabra!") } }),
+            b("event_broadcast", { fields: { MSG: "magic" } }),
+          ]),
+        ]),
+      },
+      {
+        id: "s-magicstar",
+        name: "Star",
+        costume: "star",
+        x: 120, y: 40, direction: 90, size: 80, visible: true,
+        workspace: ws([
+          script(40, 40, b("event_when_flag_clicked"), [
+            b("looks_set_size", { inputs: { SIZE: num(80) } }),
+            b("looks_say", { inputs: { TEXT: txt("Click the unicorn! ✨") } }),
+          ]),
+          script(40, 220, b("event_when_broadcast", { fields: { MSG: "magic" } }), [
+            b("control_repeat", {
+              inputs: {
+                TIMES: num(10),
+                DO: {
+                  block: stack([
+                    b("motion_turn_right", { inputs: { DEG: num(36) } }),
+                    b("looks_change_size", { inputs: { DELTA: num(6) } }),
+                    b("control_wait", { inputs: { SECS: num(0.05) } }),
+                  ]),
+                },
+              },
+            }),
+            b("sound_play", { fields: { SOUND: "coin" } }),
+            b("looks_set_size", { inputs: { SIZE: num(80) } }),
+            b("looks_say", { inputs: { TEXT: txt("Ta-da! 🎉") } }),
+          ]),
+        ]),
+      },
+    ],
+  },
+};
+
+export const EXAMPLES = [dancingCat, starCatcher, arrowDrive, magicShow];
+

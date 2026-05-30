@@ -1,0 +1,162 @@
+{
+  "name": "Arrow Driver",
+  "data": {
+    "projectName": "Arrow Driver",
+    "backdrop": "grass",
+    "sprites": [
+      {
+        "id": "s-rocket",
+        "name": "Rocket",
+        "costume": "rocket",
+        "x": 0,
+        "y": 0,
+        "direction": 90,
+        "size": 100,
+        "visible": true,
+        "workspace": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "event_when_key_pressed",
+                "fields": {
+                  "KEY": "up"
+                },
+                "x": 40,
+                "y": 40,
+                "next": {
+                  "block": {
+                    "type": "motion_change_y",
+                    "inputs": {
+                      "DY": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": 12
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "event_when_key_pressed",
+                "fields": {
+                  "KEY": "down"
+                },
+                "x": 40,
+                "y": 150,
+                "next": {
+                  "block": {
+                    "type": "motion_change_y",
+                    "inputs": {
+                      "DY": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": -12
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "event_when_key_pressed",
+                "fields": {
+                  "KEY": "left"
+                },
+                "x": 40,
+                "y": 260,
+                "next": {
+                  "block": {
+                    "type": "motion_change_x",
+                    "inputs": {
+                      "DX": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": -12
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "event_when_key_pressed",
+                "fields": {
+                  "KEY": "right"
+                },
+                "x": 40,
+                "y": 370,
+                "next": {
+                  "block": {
+                    "type": "motion_change_x",
+                    "inputs": {
+                      "DX": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": 12
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "event_when_flag_clicked",
+                "x": 360,
+                "y": 40,
+                "next": {
+                  "block": {
+                    "type": "looks_say",
+                    "inputs": {
+                      "TEXT": {
+                        "shadow": {
+                          "type": "text_kid",
+                          "fields": {
+                            "TEXT": "Use arrow keys to fly me! 🚀"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "motion_goto_xy",
+                        "inputs": {
+                          "X": {
+                            "shadow": {
+                              "type": "math_number_kid",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          },
+                          "Y": {
+                            "shadow": {
+                              "type": "math_number_kid",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variables": []
+        }
+      }
+    ]
+  }
+}

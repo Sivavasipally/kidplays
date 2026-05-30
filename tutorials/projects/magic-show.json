@@ -1,0 +1,214 @@
+{
+  "name": "Magic Show",
+  "data": {
+    "projectName": "Magic Show",
+    "backdrop": "space",
+    "sprites": [
+      {
+        "id": "s-wizard",
+        "name": "Unicorn",
+        "costume": "unicorn",
+        "x": -110,
+        "y": -20,
+        "direction": 90,
+        "size": 110,
+        "visible": true,
+        "workspace": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "event_when_sprite_clicked",
+                "x": 40,
+                "y": 40,
+                "next": {
+                  "block": {
+                    "type": "looks_say",
+                    "inputs": {
+                      "TEXT": {
+                        "shadow": {
+                          "type": "text_kid",
+                          "fields": {
+                            "TEXT": "Abracadabra!"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "event_broadcast",
+                        "fields": {
+                          "MSG": "magic"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variables": []
+        }
+      },
+      {
+        "id": "s-magicstar",
+        "name": "Star",
+        "costume": "star",
+        "x": 120,
+        "y": 40,
+        "direction": 90,
+        "size": 80,
+        "visible": true,
+        "workspace": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "event_when_flag_clicked",
+                "x": 40,
+                "y": 40,
+                "next": {
+                  "block": {
+                    "type": "looks_set_size",
+                    "inputs": {
+                      "SIZE": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": 80
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "looks_say",
+                        "inputs": {
+                          "TEXT": {
+                            "shadow": {
+                              "type": "text_kid",
+                              "fields": {
+                                "TEXT": "Click the unicorn! ✨"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "event_when_broadcast",
+                "fields": {
+                  "MSG": "magic"
+                },
+                "x": 40,
+                "y": 220,
+                "next": {
+                  "block": {
+                    "type": "control_repeat",
+                    "inputs": {
+                      "TIMES": {
+                        "shadow": {
+                          "type": "math_number_kid",
+                          "fields": {
+                            "NUM": 10
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "motion_turn_right",
+                          "inputs": {
+                            "DEG": {
+                              "shadow": {
+                                "type": "math_number_kid",
+                                "fields": {
+                                  "NUM": 36
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "looks_change_size",
+                              "inputs": {
+                                "DELTA": {
+                                  "shadow": {
+                                    "type": "math_number_kid",
+                                    "fields": {
+                                      "NUM": 6
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "control_wait",
+                                  "inputs": {
+                                    "SECS": {
+                                      "shadow": {
+                                        "type": "math_number_kid",
+                                        "fields": {
+                                          "NUM": 0.05
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "sound_play",
+                        "fields": {
+                          "SOUND": "coin"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "looks_set_size",
+                            "inputs": {
+                              "SIZE": {
+                                "shadow": {
+                                  "type": "math_number_kid",
+                                  "fields": {
+                                    "NUM": 80
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "looks_say",
+                                "inputs": {
+                                  "TEXT": {
+                                    "shadow": {
+                                      "type": "text_kid",
+                                      "fields": {
+                                        "TEXT": "Ta-da! 🎉"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variables": []
+        }
+      }
+    ]
+  }
+}

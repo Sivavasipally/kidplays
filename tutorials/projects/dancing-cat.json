@@ -1,0 +1,104 @@
+{
+  "name": "Dancing Cat",
+  "data": {
+    "projectName": "Dancing Cat",
+    "backdrop": "sunset",
+    "sprites": [
+      {
+        "id": "s-cat",
+        "name": "Cat",
+        "costume": "cat",
+        "x": 0,
+        "y": 0,
+        "direction": 90,
+        "size": 120,
+        "visible": true,
+        "workspace": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "event_when_flag_clicked",
+                "x": 40,
+                "y": 40,
+                "next": {
+                  "block": {
+                    "type": "control_forever",
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "motion_move",
+                          "inputs": {
+                            "STEPS": {
+                              "shadow": {
+                                "type": "math_number_kid",
+                                "fields": {
+                                  "NUM": 15
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "motion_bounce",
+                              "next": {
+                                "block": {
+                                  "type": "looks_change_size",
+                                  "inputs": {
+                                    "DELTA": {
+                                      "shadow": {
+                                        "type": "math_number_kid",
+                                        "fields": {
+                                          "NUM": 5
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "control_wait",
+                                      "inputs": {
+                                        "SECS": {
+                                          "shadow": {
+                                            "type": "math_number_kid",
+                                            "fields": {
+                                              "NUM": 0.1
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "looks_change_size",
+                                          "inputs": {
+                                            "DELTA": {
+                                              "shadow": {
+                                                "type": "math_number_kid",
+                                                "fields": {
+                                                  "NUM": -5
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variables": []
+        }
+      }
+    ]
+  }
+}
